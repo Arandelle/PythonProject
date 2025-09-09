@@ -1,3 +1,5 @@
+import json
+
 class Student: 
     def __init__(self, student_id, name, gender, age, course):
         self.student_id = student_id
@@ -25,14 +27,18 @@ def add_student():
     print()
     print("Student added successfully.")
 
-def load_students_from_file(filename="students.txt"): 
+def load_students_from_file(filename="students.json"): 
     try: 
+        list_students.clear() # clear existing list to avoid duplicates when loading
         with open(filename, "r") as file:
-            for line in file:
-                student_id, student_name, student_gender, student_age, student_course = line.strip().split(", ")
-                new_student = Student(student_id, student_name, student_gender, student_age, student_course)
+            
+            data = json.load(file)
+
+            for student_data in data:
+                new_student = Student(**student_data)
                 list_students.append(new_student)
-                print("Welcome back! Loaded existing student records.")
+
+            print("Welcome back! Loaded existing student records.")
     except FileNotFoundError:
         print(f"No existing file named {filename} found. Starting with an empty student list.")
 
@@ -57,11 +63,11 @@ def search_student():
     else:
         print("No matching student found.")
 
-def save_students_to_file(filename="students.txt"):
+def save_students_to_file(filename="students.json"):
     with open(filename, "w") as file:
-        for student in list_students:
-            # save in CSV format for easier parsing instead of using __str__ or (str(student))
-            file.write(f"{student.student_id}, {student.name}, {student.gender}, {student.age}, {student.course}\n")
+
+        json.dump([student.__dict__ for student in list_students], file, indent=4)
+
         print(f"Students saved to {filename} successfully.")
 
 def delete_student():
@@ -100,19 +106,19 @@ def update_student():
 
             match user_choice:
                 case "0":
-                    new_id = input("Enter new ID:")
+                    new_id = input("Enter new ID:").title()
                     student.student_id = new_id
                 case "1":
-                    new_name = input("Enter new Name:")
+                    new_name = input("Enter new Name:").title()
                     student.name = new_name
                 case "2":
-                    new_gender = input("Enter new Gender:")
+                    new_gender = input("Enter new Gender:").title()
                     student.gender = new_gender
                 case "3":
                     new_age = input("Enter new Age:")
                     student.age = new_age
                 case "4":
-                    new_course = input("Enter new Course:")
+                    new_course = input("Enter new Course:").title()
                     student.course = new_course
                 case _:
                     print("Invalid choice.")
@@ -129,7 +135,7 @@ def exit_program() :
 
     match user_choice:
         case "1":
-            save_students_to_file("students.txt")
+            save_students_to_file("students.json")
             print("Saving changes and exiting the program.")
             exit()
 
@@ -144,7 +150,7 @@ def exit_program() :
             print("Invalid choice. Please enter a number between 1 and 3.")
        
 # load existing students from file at the start of the program
-load_students_from_file("students.txt")
+load_students_from_file("students.json")
 
 while True:
     print("""
@@ -169,7 +175,7 @@ while True:
         case "3":
             search_student()
         case "4":
-            save_students_to_file("students.txt")
+            save_students_to_file("students.json")
         case "5":
             delete_student()
         case "6":
