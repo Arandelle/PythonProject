@@ -14,8 +14,28 @@ class Student:
 # List to store student records
 list_students = []
 
+def check_duplicate_id(student_id):
+    for student in list_students:
+        if int(student.student_id) == student_id:
+            return True
+        return False
+
+def check_len_id(student_id):
+    if len(str(student_id)) != 9:
+        print("Student ID must be 9 digits long.")
+        return False
+    return True
+
 def add_student():
-    student_id = input("Enter Student ID: ").title()
+    student_id = int(input("Enter Student ID (9digits): "))
+
+    if check_duplicate_id(student_id):
+        print("Student ID already exist. Please use a different ID.")
+        return
+
+    if check_len_id(student_id) is False:
+        return
+    
     student_name = input("Enter Student Name: ").title()
     student_gender = input("Enter Student Gender: ").title()
     student_age = int(input("Enter Student Age: "))
@@ -27,7 +47,7 @@ def add_student():
     print()
     print("Student added successfully.")
 
-def load_students_from_file(filename="students.json"): 
+def load_students_from_file(filename="students.json"):
     try: 
         list_students.clear() # clear existing list to avoid duplicates when loading
         with open(filename, "r") as file:
@@ -71,13 +91,13 @@ def save_students_to_file(filename="students.json"):
         print(f"Students saved to {filename} successfully.")
 
 def delete_student():
-    student_to_delete = input("Enter student ID to delete: ")
+    student_to_delete = int(input("Enter student ID to delete: "))
     if not list_students:
         print("No students found.")
         return
     
     for student in list_students:
-        if student.student_id == student_to_delete:
+        if int(student.student_id) == student_to_delete:
             list_students.remove(student)
             print(f"Student with ID {student_to_delete} has been deleted.")
             return
@@ -86,14 +106,14 @@ def delete_student():
             return
         
 def update_student():
-    student_to_update = input("Enter student ID to update: ")
+    student_to_update = int(input("Enter student ID to update: "))
 
     if not list_students:
         print("No students found.")
         return
     
     for student in list_students:
-        if student.student_id == student_to_update:
+        if int(student.student_id) == student_to_update:
             print("""
                 What do you want to update?
                   0. ID
@@ -106,8 +126,15 @@ def update_student():
 
             match user_choice:
                 case "0":
-                    new_id = input("Enter new ID:").title()
+                    new_id = int(input("Enter new ID:"))
+                    if check_duplicate_id(new_id):
+                        print("Student ID already exist. Please use a different ID.")
+                        return
+                    
+                    if check_len_id(new_id) is False:
+                        return
                     student.student_id = new_id
+                    
                 case "1":
                     new_name = input("Enter new Name:").title()
                     student.name = new_name
@@ -115,13 +142,14 @@ def update_student():
                     new_gender = input("Enter new Gender:").title()
                     student.gender = new_gender
                 case "3":
-                    new_age = input("Enter new Age:")
+                    new_age = int(input("Enter new Age:"))
                     student.age = new_age
                 case "4":
                     new_course = input("Enter new Course:").title()
                     student.course = new_course
                 case _:
                     print("Invalid choice.")
+                    return
             print("Student record updated successfully.")
 
 def exit_program() :
@@ -153,34 +181,38 @@ def exit_program() :
 load_students_from_file("students.json")
 
 while True:
-    print("""
-    Student Management System
-        1. Add Student.
-        2. View Students.
-        3. Search Student.
-        4. Save Students to File.
-        5. Delete Student.
-        6. Update Student.
-        7. Exit.
-    """)
+    try:
+        print("""
+        Student Management System
+            1. Add Student.
+            2. View Students.
+            3. Search Student.
+            4. Save Students to File.
+            5. Delete Student.
+            6. Update Student.
+            7. Exit.
+        """)
 
-    # get user input
-    user_choice = input("Enter your choice (1-7): ")
+        # get user input
+        user_choice = input("Enter your choice (1-7): ")
 
-    match user_choice:
-        case "1":
-            add_student()
-        case "2":
-            view_students()
-        case "3":
-            search_student()
-        case "4":
-            save_students_to_file("students.json")
-        case "5":
-            delete_student()
-        case "6":
-            update_student()
-        case "7":
-            exit_program()
-        case _:
-            print("Invalid choice. Please enter a number between 1 and 7.")
+        match user_choice:
+            case "1":
+                add_student()
+            case "2":
+                view_students()
+            case "3":
+                search_student()
+            case "4":
+                save_students_to_file("students.json")
+            case "5":
+                delete_student()
+            case "6":
+                update_student()
+            case "7":
+                exit_program()
+            case _:
+                print("Invalid choice. Please enter a number between 1 and 7.")
+    
+    except Exception as e:
+        print(f"An error occurred: {e}. Please try again.")
