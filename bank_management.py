@@ -88,56 +88,108 @@ def generate_random_number(length):
 
     return random.randint(lower_bound, upper_bond)
 
+def custom_input(prompt: str):
+    # input wrapper that cancels if * is enterred
+    value = input(prompt)
+    if value.strip() == "*":
+        print("Operation cancelled")
+        return None
+    return value
+
 def create_account():
-    random_account_num = generate_random_number(10)
-    name = input("Enter your name: ")
-    pin = input("Pin: ")
 
-    if (len(pin) != 4):
-        print("Pin must be 4 digits")
-        return
+    try:
+        print("Enter * to cancel")
+
+        random_account_num = generate_random_number(10)
+        name = custom_input("Enter your name: ")
+        if name is None: return
+
+        pin = custom_input("Pin: ")
+        if pin is None : return
+        if len(pin) != 4:
+            print("Pin must be 4 digits")
+            return
+        
+        balance_input = custom_input("Enter your balance: ")
+        if balance_input is None: return
+
+        balance = float(balance_input)
+        auth.register_account(random_account_num, name, pin, balance)
+
+        print("Successfully created an account!")
+        print(f"Your Account number is {random_account_num}")
     
-    balance = float(input("Enter your balance: "))
-
-    auth.register_account(random_account_num, name, pin, balance)
-
-    print("Successfully created an account!")
-    print(f"Your Account number is {random_account_num}")
+    except ValueError :
+        print("Invalid Input. Please try again")
 
 def login():
-    acc_num = int(input("Account Number: "))
-    acc_pin = input("PIN: ")
-    auth.login(acc_num, acc_pin)
+    try: 
+        print("Enter * to cancel")
+
+        acc_num_input = custom_input("Account Number: ")
+        if acc_num_input is None : return
+        # convert the input to int 
+        acc_num = int(acc_num_input)
+
+        acc_pin = custom_input("PIN: ")
+        if acc_pin is None : return
+        auth.login(acc_num, acc_pin)
+
+    except ValueError :
+        print("Invalid input. Please try again")
 
 def deposit():
-    deposit = float(input("Amount: "))
-    auth.loggedIn.deposit(deposit)
-    auth.save_accounts()
-    return
+    try:
+        print("Enter * to cancel")
+        deposit_input = custom_input("Amount: ")
+        if deposit_input is None: return
+        deposit = float(deposit_input)
+        auth.loggedIn.deposit(deposit)
+        auth.save_accounts()
+        return
+    except ValueError:
+        print("Invalid input. Please try again")
 
 def withdraw():
-    withdraw_amount = float(input("Enter amount to withdraw: "))
-    auth.loggedIn.withdraw(withdraw_amount)
-    auth.save_accounts()
-    return
+    try:
+        print("Enter * to cancel")
+        withdraw_input = custom_input("Amount to withdraw: ")
+        if withdraw_input is None: return
+
+        withdraw_amount = float(withdraw_input)
+        auth.loggedIn.withdraw(withdraw_amount)
+        auth.save_accounts()
+        return
+    except ValueError:
+        print("Invalid input. Please try again")
 
 def transfer_fund():
-    receiver = None
-    receiver_number = int(input("Enter receiver account: "))
-    
-    for acc in auth.accounts:
-        if acc.account_number == receiver_number:
-            receiver = acc
-            break
-    
-    if receiver is None:
-        print("Receiver not found!")
-        return
-    
-    amount = float(input("Enter amount to transfer: "))
+    try:
+        print("Enter * to cancel")
+        receiver = None
+        receiver_input = custom_input("Enter receiver account: ")
+        if receiver_input is None : return
 
-    auth.loggedIn.transfer(receiver, amount)
-    auth.save_accounts()
+        receiver_number = int(receiver_input)
+        
+        for acc in auth.accounts:
+            if acc.account_number == receiver_number:
+                receiver = acc
+                break
+        
+        if receiver is None:
+            print("Receiver not found!")
+            return
+        amount_input = custom_input("Amount to transfer: ")
+        if amount_input is None: return
+
+        amount = float(amount_input)
+
+        auth.loggedIn.transfer(receiver, amount)
+        auth.save_accounts()
+    except ValueError:
+        print("Invalid input. Please try again.")
 
 def view_details():
     print(str(auth.loggedIn))
@@ -194,7 +246,6 @@ while True:
         1. Login
         2. Create an Account
         3. Exit
-
     """)
         
         user_choice = input("Enter your choice: ")

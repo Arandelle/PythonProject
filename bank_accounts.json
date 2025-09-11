@@ -15,12 +15,12 @@
         "account_number": 1128567966,
         "name": "Juan Dela Cruz",
         "pin": "1010",
-        "balance": 500.0
+        "balance": 900.0
     },
     {
         "account_number": 6873333539,
         "name": "Kenneth Cabinet",
         "pin": "0404",
-        "balance": 500.0
+        "balance": 100.0
     }
 ]
