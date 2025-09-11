@@ -1,4 +1,5 @@
 import random
+import json
 
 class AuthSystem:
     def __init__(self):
@@ -9,6 +10,7 @@ class AuthSystem:
 
         new_account = Account(acc_num, name,pin, balance)
         self.accounts.append(new_account)
+        self.save_accounts()
         print(f"Account created for {name}. acc#: {acc_num}")
 
     def login(self, acc_num, pin):
@@ -20,15 +22,37 @@ class AuthSystem:
         print("Invalid credentials")
         return False
     
+    def save_accounts(self):
+        with open("bank_accounts.json", "w") as file:
+            json.dump([{
+                "account_number" : account.account_number,
+                "name": account.name,
+                "pin" : account._pin, # create like this instead of account.__dict__ to rename the _pin as pin
+                "balance" : account.balance
+            }
+            for account in self.accounts], file, indent=4)
+
+    def load_Accounts(self):
+        try:
+            self.accounts.clear() # clear the list to avoid duplicates
+            with open("bank_accounts.json", "r") as file:
+                accounts = json.load(file)
+                for acc in accounts:
+                    new_account = Account(**acc)
+                    self.accounts.append(new_account)
+
+        except FileNotFoundError:
+            print("File not found. Create an account first")
+
 class Account:
     def __init__(self, account_number, name,pin, balance):
         self.account_number = account_number
         self.name = name
-        self._pin = pin # private pin
+        self._pin = str(pin) # private pin
         self.balance = balance
 
     def checkPin(self, pin): # encapsulation
-        return self._pin == pin
+        return self._pin == str(pin)
 
 
     def deposit(self, amount):
@@ -67,7 +91,12 @@ def generate_random_number(length):
 def create_account():
     random_account_num = generate_random_number(10)
     name = input("Enter your name: ")
-    pin = int(input("Pin: "))
+    pin = input("Pin: ")
+
+    if (len(pin) != 4):
+        print("Pin must be 4 digits")
+        return
+    
     balance = float(input("Enter your balance: "))
 
     auth.register_account(random_account_num, name, pin, balance)
@@ -77,17 +106,19 @@ def create_account():
 
 def login():
     acc_num = int(input("Account Number: "))
-    acc_pin = int(input("PIN: "))
+    acc_pin = input("PIN: ")
     auth.login(acc_num, acc_pin)
 
 def deposit():
     deposit = float(input("Amount: "))
     auth.loggedIn.deposit(deposit)
+    auth.save_accounts()
     return
 
 def withdraw():
     withdraw_amount = float(input("Enter amount to withdraw: "))
     auth.loggedIn.withdraw(withdraw_amount)
+    auth.save_accounts()
     return
 
 def transfer_fund():
@@ -106,6 +137,7 @@ def transfer_fund():
     amount = float(input("Enter amount to transfer: "))
 
     auth.loggedIn.transfer(receiver, amount)
+    auth.save_accounts()
 
 def view_details():
     print(str(auth.loggedIn))
@@ -122,18 +154,22 @@ def view_all_account():
 
 def logout():
     auth.loggedIn = None
+    print("Thank you for trusting YourBank MyBank.")
+    print("Logged out!")
     return
+
+# load accounts from the json, so the accounts list will have the data
+auth.load_Accounts()
 
 while True: 
     if auth.loggedIn != None:
         print("""
-
         === YourBank MyBank ===
-                1. Deposit Money
-                2. Withdraw Money
-                3. Transfer Money
-                4. View Account Details
-                5. Logout
+        1. Deposit Money
+        2. Withdraw Money
+        3. Transfer Money
+        4. View Account Details
+        5. Logout
         """)
             
         user_choice = input("Enter your choice: ")
@@ -148,8 +184,6 @@ while True:
             case "4":
                 view_details()
             case "5":
-                print("Thank you for trusting YourBank MyBank.")
-                print("Loggin out...")
                 logout()
             case _:
                 print("Invalid input. Please choose between 1 -7")
@@ -163,7 +197,7 @@ while True:
 
     """)
         
-        user_choice = input("Enter what you do: ")
+        user_choice = input("Enter your choice: ")
 
         match user_choice:
             case "1":
