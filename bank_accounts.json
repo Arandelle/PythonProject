@@ -4,23 +4,5 @@
         "name": "Arandelle",
         "pin": "707",
         "balance": 400.0
-    },
-    {
-        "account_number": 3831158454,
-        "name": "Paguinto",
-        "pin": "707",
-        "balance": 300.0
-    },
-    {
-        "account_number": 1128567966,
-        "name": "Juan Dela Cruz",
-        "pin": "1010",
-        "balance": 900.0
-    },
-    {
-        "account_number": 6873333539,
-        "name": "Kenneth Cabinet",
-        "pin": "0404",
-        "balance": 100.0
     }
 ]

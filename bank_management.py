@@ -32,6 +32,17 @@ class AuthSystem:
             }
             for account in self.accounts], file, indent=4)
 
+    def delete_account(self, pin):
+        if self.loggedIn and self.loggedIn.checkPin(pin):
+            print(f"Successfully delete an account {self.loggedIn.account_number}")
+            self.accounts.remove(self.loggedIn)
+            self.loggedIn = None
+            self.save_accounts()
+            return True
+        else:
+            print("Invalid pin!")
+            return False
+
     def load_Accounts(self):
         try:
             self.accounts.clear() # clear the list to avoid duplicates
@@ -74,7 +85,7 @@ class Account:
             self.balance -= amount
             other_account.balance += amount
             print(f"Transferred {amount} to {other_account.name}")
-
+        
     def __str__(self):
         return f"Account Number: {self.account_number}, Name: {self.name}, Balance: {self.balance}"
 
@@ -203,6 +214,11 @@ def view_all_account():
     for index, acc in enumerate(auth.accounts, 1):
         print(f"{index}. {str(acc)}")
 
+def delete_account():
+    pin_input = custom_input("Enter your pin: ")
+
+    if pin_input is None: return
+    auth.delete_account(pin_input)
 
 def logout():
     auth.loggedIn = None
@@ -215,13 +231,17 @@ auth.load_Accounts()
 
 while True: 
     if auth.loggedIn != None:
-        print("""
+        print(f"""
         === YourBank MyBank ===
+        Welcome {auth.loggedIn.name}
         1. Deposit Money
         2. Withdraw Money
         3. Transfer Money
         4. View Account Details
-        5. Logout
+        5. Transaction Record
+        6. Delete My Account
+        7. Edit My Account
+        8. Logout
         """)
             
         user_choice = input("Enter your choice: ")
@@ -235,7 +255,9 @@ while True:
                 transfer_fund()
             case "4":
                 view_details()
-            case "5":
+            case "6":
+                delete_account()
+            case "8":
                 logout()
             case _:
                 print("Invalid input. Please choose between 1 -7")
