@@ -231,8 +231,8 @@ def view_all_account():
         print(f"{index}. {str(acc)}")
 
 def delete_account():
+    print("Enter * to cancel")
     pin_input = custom_input("Enter your pin: ")
-
     if pin_input is None: return
     auth.delete_account(pin_input)
 
@@ -240,7 +240,9 @@ def edit_account():
     print("Enter * to cancel")
     print("Enter to keep the current value")
     new_name = custom_input("Enter your name: ")
+    if new_name is None: return
     new_pin = custom_input("Enter your new pi: ")
+    if new_pin is None: return
     auth.edit_account(new_name, new_pin)
 
 def logout():
