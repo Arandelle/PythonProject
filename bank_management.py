@@ -43,6 +43,22 @@ class AuthSystem:
             print("Invalid pin!")
             return False
 
+    def edit_account(self, new_name, new_pin):
+        if self.loggedIn:
+            if new_name.strip() != "":
+                self.loggedIn.name = new_name
+            if new_pin.strip() != "":
+                if len(new_pin) == 4:
+                    self.loggedIn._pin = new_pin
+                else:
+                    print("Pin must be 4 digits")
+                    return
+            if new_name.strip() == "" and new_pin.strip() == "":
+                print("Your details remain to it's original value")
+                return
+            self.save_accounts()
+            print("Successfully updated!")
+
     def load_Accounts(self):
         try:
             self.accounts.clear() # clear the list to avoid duplicates
@@ -220,6 +236,13 @@ def delete_account():
     if pin_input is None: return
     auth.delete_account(pin_input)
 
+def edit_account():
+    print("Enter * to cancel")
+    print("Enter to keep the current value")
+    new_name = custom_input("Enter your name: ")
+    new_pin = custom_input("Enter your new pi: ")
+    auth.edit_account(new_name, new_pin)
+
 def logout():
     auth.loggedIn = None
     print("Thank you for trusting YourBank MyBank.")
@@ -257,6 +280,8 @@ while True:
                 view_details()
             case "6":
                 delete_account()
+            case "7":
+                edit_account()
             case "8":
                 logout()
             case _:
