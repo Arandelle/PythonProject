@@ -1,5 +1,6 @@
 import random
 import json
+from datetime import datetime
 
 class AuthSystem:
     def __init__(self):
@@ -28,7 +29,8 @@ class AuthSystem:
                 "account_number" : account.account_number,
                 "name": account.name,
                 "pin" : account._pin, # create like this instead of account.__dict__ to rename the _pin as pin
-                "balance" : account.balance
+                "balance" : account.balance,
+                "transaction_record": [t.to_dict() for t in account.transaction_record]
             }
             for account in self.accounts], file, indent=4)
 
@@ -77,6 +79,7 @@ class Account:
         self.name = name
         self._pin = str(pin) # private pin
         self.balance = balance
+        self.transaction_record = []
 
     def checkPin(self, pin): # encapsulation
         return self._pin == str(pin)
@@ -84,6 +87,8 @@ class Account:
 
     def deposit(self, amount):
         self.balance += amount
+        transaction = Transaction("Deposit", amount, self.balance)
+        self.transaction_record.append(transaction)
         print(f"Deposited {amount}. Updated balance: {self.balance}")
 
     def withdraw(self, amount):
@@ -92,6 +97,8 @@ class Account:
             print("Insufficient balance!")
         else:
             self.balance -= amount
+            transaction = Transaction("Withdraw", amount, self.balance)
+            self.transaction_record.append(transaction)
             print(f"Withdrew {amount}. Updated balance: {self.balance}")
 
     def transfer(self, other_account, amount):
@@ -100,10 +107,38 @@ class Account:
         else:
             self.balance -= amount
             other_account.balance += amount
+            transaction = Transaction("Deposit", amount, self.balance, other_account)
+            self.transaction_record.append(transaction)
             print(f"Transferred {amount} to {other_account.name}")
-        
+
+    def transaction_record(self):
+        for transaction in self.transaction_record:
+            print(f"Type: {transaction.type}, Date: {transaction.date}, Amount: {transaction.amount}, Updated amount: {transaction.balance}, Receiver: {transaction.receiver}")
+
     def __str__(self):
         return f"Account Number: {self.account_number}, Name: {self.name}, Balance: {self.balance}"
+
+class Transaction:
+    def __init__(self, type, amount,balance_after, receiver = None):
+        self.type = type
+        self.amount = amount
+        self.balance_after = balance_after
+        self.receiver = receiver
+        self.date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    def to_dict(self):
+        return {
+            "type" : self.type,
+            "amount" : self.amount,
+            "balance" : self.balance_after,
+            "reciever" : self.receiver,
+            "date" : self.date
+        }
+
+    def __str__(self):
+        if self.receiver:
+            return f"[{self.date}] {self.type}: {self.amount}, Balance: {self.balance_after}, Receiver: {self.receiver}"
+        return f"[{self.date}] {self.type}: {self.amount}, Balance: {self.balance_after}"
 
 # create global auth
 auth = AuthSystem()
@@ -221,7 +256,11 @@ def transfer_fund():
 def view_details():
     print(str(auth.loggedIn))
     return
-        
+
+def view_transaction():
+        for t in auth.loggedIn.transaction_record:
+            print(t)
+
 def view_all_account():
     if not auth.accounts:
         print("No account created yet")
@@ -251,6 +290,7 @@ def logout():
     print("Logged out!")
     return
 
+
 # load accounts from the json, so the accounts list will have the data
 auth.load_Accounts()
 
@@ -279,7 +319,9 @@ while True:
             case "3":
                 transfer_fund()
             case "4":
-                view_details()
+                view_details() 
+            case "5":
+                view_transaction()
             case "6":
                 delete_account()
             case "7":

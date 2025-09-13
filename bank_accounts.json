@@ -1,8 +1,17 @@
 [
     {
-        "account_number": 2156750063,
-        "name": "paguinto",
-        "pin": "1010",
-        "balance": 400.0
+        "account_number": 4990268719,
+        "name": "Arandelle",
+        "pin": "0707",
+        "balance": 1400.0,
+        "transaction_record": [
+            {
+                "type": "Deposit",
+                "amount": 900.0,
+                "balance": 1400.0,
+                "reciever": null,
+                "date": "2025-09-13 20:01:37"
+            }
+        ]
     }
 ]
